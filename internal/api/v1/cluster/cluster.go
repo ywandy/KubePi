@@ -615,6 +615,13 @@ func Install(parent iris.Party) {
 	sp.Delete("/:name/members/:member", handler.DeleteClusterMember())
 	sp.Put("/:name/members/:member", handler.UpdateClusterMember())
 	sp.Get("/:name/members/:member", handler.GetClusterMember())
+
+	sp.Get("/:name/groups", handler.ListClusterMembersGroup())
+	sp.Post("/:name/groups", handler.CreateClusterMemberGroup())
+	sp.Delete("/:name/groups/:member", handler.DeleteClusterMemberGroup())
+	sp.Put("/:name/groups/:member", handler.UpdateClusterMemberGroup())
+	sp.Get("/:name/groups/:member", handler.GetClusterMemberGroup())
+
 	sp.Get("/:name/clusterroles", handler.ListClusterRoles())
 	sp.Post("/:name/clusterroles", handler.CreateClusterRole())
 	sp.Put("/:name/clusterroles/:clusterrole", handler.UpdateClusterRole())

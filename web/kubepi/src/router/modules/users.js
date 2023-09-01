@@ -15,6 +15,8 @@ const UserManagement = {
     global: true
   },
   children: [
+
+
     {
       path: "users",
       component: () => import("@/business/user-management/user"),
@@ -25,6 +27,37 @@ const UserManagement = {
       },
       meta: {
         title: "business.user.user",
+      }
+    },
+    {
+      path: "groups",
+      component: () => import("@/business/user-management/groups"),
+      name: "Groups",
+      requirePermission: {
+        resource: "groups",
+        verb: "list"
+      },
+      meta: {
+        title: "business.user.usergroup",
+      }
+    },
+    {
+      path: "groups/create",
+      component: () => import("@/business/user-management/groups/create"),
+      name: "GroupCreate",
+      hidden: true,
+      meta: {
+        activeMenu: "/user-management/groups",
+      }
+    },
+    {
+      path: "groups/edit/:name",
+      component: () => import("@/business/user-management/groups/create"),
+      name: "GroupEdit",
+      props: true,
+      hidden: true,
+      meta: {
+        activeMenu: "/user-management/groups",
       }
     },
     {

@@ -163,6 +163,7 @@ const message = {
             cluster_viewer: "只读用户",
         },
         user: {
+            usergroup_management: "用户组管理",
             user_management: "用户管理",
             username: "用户名",
             nickname: "昵称",
@@ -170,6 +171,7 @@ const message = {
             user_list: "用户列表",
             role_list: "角色列表",
             user: "用户",
+            usergroup: "用户组",
             role: "角色",
             template: "模版",
             base_on_exists_role: "基于已有角色",

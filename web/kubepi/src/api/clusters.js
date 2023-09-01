@@ -23,6 +23,10 @@ export function searchClusters(page, size, conditions) {
     return post(url, {conditions: conditions})
 }
 
+export function updateCluster(name, req) {
+    return put(`${baseUrl}/${name}`, req)
+}
+
 
 export function listClusterMembers(name) {
     return get(`${baseUrl}/${name}/members`)
@@ -31,11 +35,6 @@ export function listClusterMembers(name) {
 export function createClusterMember(name, member) {
     return post(`${baseUrl}/${name}/members`, member)
 }
-
-export function updateCluster(name, req) {
-    return put(`${baseUrl}/${name}`, req)
-}
-
 
 export function updateClusterMember(name, memberName, member) {
     return put(`${baseUrl}/${name}/members/${memberName}`, member)
@@ -49,6 +48,29 @@ export function getClusterMember(name, memberName) {
 export function deleteClusterMember(name, memberName, kind) {
     return del(`${baseUrl}/${name}/members/${memberName}?kind=${kind}`)
 }
+
+
+export function listClusterGroups(name) {
+    return get(`${baseUrl}/${name}/groups`)
+}
+
+export function createClusterGroups(name, member) {
+    return post(`${baseUrl}/${name}/groups`, member)
+}
+
+export function updateClusterGroups(name, memberName, member) {
+    return put(`${baseUrl}/${name}/groups/${memberName}`, member)
+}
+
+
+export function getClusterGroups(name, memberName) {
+    return get(`${baseUrl}/${name}/groups/${memberName}`)
+}
+
+export function deleteClusterGroups(name, memberName, kind) {
+    return del(`${baseUrl}/${name}/groups/${memberName}?kind=${kind}`)
+}
+
 
 export function listClusterRoles(name, scope) {
 

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/KubeOperator/kubepi/internal/api/v1/group"
 	"io/ioutil"
 	"strings"
 
@@ -62,7 +63,10 @@ func authHandler() iris.Handler {
 			p = *pr
 
 		} else {
-			p = server.SessionMgr.Start(ctx).Get("profile").(session.UserProfile)
+			//p = server.SessionMgr.Start(ctx).Get("profile").(session.UserProfile)
+			p=session.UserProfile{}
+			a,_:=json.Marshal(server.SessionMgr.Start(ctx).Get("profile"))
+			json.Unmarshal(a,&p)
 		}
 		if p.Name == "" {
 			ctx.Values().Set("message", "please login")
@@ -424,7 +428,7 @@ func AddV1Route(app iris.Party) {
 	mfa.Install(v1Party)
 	v1Party.Use(langHandler())
 	v1Party.Use(pageHandler())
-	
+
 	authParty := v1Party.Party("")
 	authParty.Use(WarpedJwtHandler())
 	authParty.Use(authHandler())
@@ -435,6 +439,7 @@ func AddV1Route(app iris.Party) {
 	authParty.Use(logHandler())
 	authParty.Get("/", apiResourceHandler(authParty))
 	user.Install(authParty)
+	group.Install(authParty)
 	cluster.Install(authParty)
 	role.Install(authParty)
 	system.Install(authParty)

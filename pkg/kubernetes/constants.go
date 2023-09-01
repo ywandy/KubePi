@@ -12,6 +12,7 @@ const (
 	LabelRoleTypeKey = "kubepi.org/role-type"
 	LabelClusterId   = "kubepi.org/cluster-id"
 	LabelUsername    = "kubepi.org/username"
+	LabelUsergroup   = "kubepi.org/usergrop"
 
 	RoleTypeCluster   = "cluster"
 	RoleTypeNamespace = "namespace"

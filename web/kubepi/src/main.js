@@ -3,6 +3,7 @@ import "@/styles/index.scss"
 import "@/assets/iconfont/iconfont"
 import '@/assets/iconfont/iconfont.css'
 import "@/styles/common/kubepi.css"
+import 'codemirror/lib/codemirror.css';
 import {library} from '@fortawesome/fontawesome-svg-core'
 import {fas} from '@fortawesome/free-solid-svg-icons'
 import {far} from '@fortawesome/free-regular-svg-icons'
@@ -15,7 +16,7 @@ import router from "./router"
 import store from './store'
 import icons from './icons'
 import VueCodemirror from 'vue-codemirror';
-import 'codemirror/lib/codemirror.css';
+
 import "./permission"
 import directives from "./directive";
 import filters from "./filters";

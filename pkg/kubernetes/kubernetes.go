@@ -43,9 +43,16 @@ type Interface interface {
 	CleanManagedClusterRole() error
 	CleanManagedClusterRoleBinding(username string) error
 	CleanManagedRoleBinding(username string) error
+
 	CleanAllRBACResource() error
 	CreateOrUpdateClusterRoleBinding(clusterRoleName string, username string, builtIn bool) error
 	CreateOrUpdateRolebinding(namespace string, clusterRoleName string, username string, builtIn bool) error
+
+	CleanManagedGroupClusterRoleBinding(groupname string) error
+	CleanManagedGroupRoleBinding(groupname string) error
+	CreateOrUpdateGroupClusterRoleBinding(clusterRoleName string, groupname string, builtIn bool) error
+	CreateOrUpdateGroupRolebinding(namespace string, clusterRoleName string, groupname string, builtIn bool) error
+
 	CreateAppMarketCRD() error
 }
 
@@ -168,6 +175,111 @@ func (k *Kubernetes) CreateOrUpdateRolebinding(namespace string, clusterRoleName
 	return nil
 }
 
+func (k *Kubernetes) CreateOrUpdateGroupClusterRoleBinding(clusterRoleName string, groupname string, builtIn bool) error {
+	client, err := k.Client()
+	if err != nil {
+		return err
+	}
+	name := fmt.Sprintf("g-%s:%s:%s", groupname, clusterRoleName, k.UUID)
+	labels := map[string]string{
+		LabelManageKey: "kubepi",
+		LabelClusterId: k.UUID,
+		LabelUsergroup: groupname,
+	}
+	annotations := map[string]string{
+		"built-in":   strconv.FormatBool(builtIn),
+		"created-at": time.Now().Format("2006-01-02 15:04:05"),
+	}
+	item := rbacV1.ClusterRoleBinding{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:        name,
+			Labels:      labels,
+			Annotations: annotations,
+		},
+		Subjects: []rbacV1.Subject{
+			{
+				Kind: "Group",
+				Name: groupname,
+			},
+		},
+		RoleRef: rbacV1.RoleRef{
+			Kind: "ClusterRole",
+			Name: clusterRoleName,
+		},
+	}
+	baseItem, err := client.RbacV1().ClusterRoleBindings().Get(context.TODO(), name, metav1.GetOptions{})
+	if err != nil {
+		if !strings.Contains(err.Error(), "not found") {
+			return err
+		}
+	}
+	if baseItem != nil && baseItem.Name != "" {
+		_, err := client.RbacV1().ClusterRoleBindings().Create(context.TODO(), &item, metav1.CreateOptions{})
+		if err != nil {
+			return err
+		}
+	} else {
+		_, err := client.RbacV1().ClusterRoleBindings().Update(context.TODO(), &item, metav1.UpdateOptions{})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (k *Kubernetes) CreateOrUpdateGroupRolebinding(namespace string, clusterRoleName string, groupname string, builtIn bool) error {
+	client, err := k.Client()
+	if err != nil {
+		return err
+	}
+	labels := map[string]string{
+		LabelManageKey: "kubepi",
+		LabelClusterId: k.UUID,
+		LabelUsergroup: groupname,
+	}
+	annotations := map[string]string{
+		"built-in":   strconv.FormatBool(builtIn),
+		"created-at": time.Now().Format("2006-01-02 15:04:05"),
+	}
+	name := fmt.Sprintf("g-%s:%s:%s:%s", namespace, groupname, clusterRoleName, k.UUID)
+	item := rbacV1.RoleBinding{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:        name,
+			Labels:      labels,
+			Annotations: annotations,
+			Namespace:   namespace,
+		},
+		Subjects: []rbacV1.Subject{
+			{
+				Kind: "Group",
+				Name: groupname,
+			},
+		},
+		RoleRef: rbacV1.RoleRef{
+			Kind: "ClusterRole",
+			Name: clusterRoleName,
+		},
+	}
+	baseItem, err := client.RbacV1().RoleBindings(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	if err != nil {
+		if !strings.Contains(err.Error(), "not found") {
+			return err
+		}
+	}
+	if baseItem != nil && baseItem.Name != "" {
+		_, err := client.RbacV1().RoleBindings(namespace).Create(context.TODO(), &item, metav1.CreateOptions{})
+		if err != nil {
+			return err
+		}
+	} else {
+		_, err := client.RbacV1().RoleBindings(namespace).Update(context.TODO(), &item, metav1.UpdateOptions{})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (k *Kubernetes) CleanManagedClusterRole() error {
 	client, err := k.Client()
 	if err != nil {
@@ -215,6 +327,49 @@ func (k *Kubernetes) CleanManagedRoleBinding(username string) error {
 	}
 	if username != "" {
 		labels = append(labels, fmt.Sprintf("%s=%s", LabelUsername, username))
+	}
+	for i := range nss.Items {
+		if err := client.RbacV1().RoleBindings(nss.Items[i].Name).DeleteCollection(context.TODO(), metav1.DeleteOptions{}, metav1.ListOptions{
+			LabelSelector: strings.Join(labels, ","),
+		}); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (k *Kubernetes) CleanManagedGroupClusterRoleBinding(groupname string) error {
+	client, err := k.Client()
+	if err != nil {
+		return err
+	}
+	labels := []string{
+		fmt.Sprintf("%s=%s", LabelManageKey, "kubepi"),
+		fmt.Sprintf("%s=%s", LabelClusterId, k.UUID),
+	}
+	if groupname != "" {
+		labels = append(labels, fmt.Sprintf("%s=%s", LabelUsergroup, groupname))
+	}
+	return client.RbacV1().ClusterRoleBindings().DeleteCollection(context.TODO(), metav1.DeleteOptions{}, metav1.ListOptions{
+		LabelSelector: strings.Join(labels, ","),
+	})
+}
+
+func (k *Kubernetes) CleanManagedGroupRoleBinding(groupname string) error {
+	client, err := k.Client()
+	if err != nil {
+		return err
+	}
+	nss, err := client.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+	labels := []string{
+		fmt.Sprintf("%s=%s", LabelManageKey, "kubepi"),
+		fmt.Sprintf("%s=%s", LabelClusterId, k.UUID),
+	}
+	if groupname != "" {
+		labels = append(labels, fmt.Sprintf("%s=%s", LabelUsergroup, groupname))
 	}
 	for i := range nss.Items {
 		if err := client.RbacV1().RoleBindings(nss.Items[i].Name).DeleteCollection(context.TODO(), metav1.DeleteOptions{}, metav1.ListOptions{

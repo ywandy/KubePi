@@ -3,6 +3,13 @@ package server
 import (
 	"embed"
 	"fmt"
+	"github.com/KubeOperator/kubepi/internal/config"
+	"github.com/KubeOperator/kubepi/pkg/file"
+	"github.com/asdine/storm/v3"
+	"github.com/coreos/etcd/pkg/fileutil"
+	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/sessions"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -15,20 +22,13 @@ import (
 	"github.com/iris-contrib/swagger/v12/swaggerFiles"
 
 	v1 "github.com/KubeOperator/kubepi/internal/model/v1"
-	"k8s.io/klog/v2"
-
-	"github.com/KubeOperator/kubepi/internal/config"
 	v1Config "github.com/KubeOperator/kubepi/internal/model/v1/config"
 	"github.com/KubeOperator/kubepi/migrate"
-	"github.com/KubeOperator/kubepi/pkg/file"
 	"github.com/KubeOperator/kubepi/pkg/i18n"
-	"github.com/asdine/storm/v3"
-	"github.com/coreos/etcd/pkg/fileutil"
-	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
-	"github.com/kataras/iris/v12/sessions"
+	"github.com/kataras/iris/v12/sessions/sessiondb/boltdb"
 	"github.com/kataras/iris/v12/view"
-	"github.com/sirupsen/logrus"
+	"k8s.io/klog/v2"
 )
 
 const SessionCookieName = "SESS_COOKIE_KUBEPI"
@@ -151,6 +151,8 @@ func (e *KubePiServer) setUpStaticFile() {
 
 func (e *KubePiServer) setUpSession() {
 	SessionMgr = sessions.New(sessions.Config{Cookie: SessionCookieName, AllowReclaim: true, Expires: time.Duration(e.config.Spec.Session.Expires) * time.Hour})
+	db, _ := boltdb.New("db/sessions.db", os.FileMode(0750))
+	SessionMgr.UseDatabase(db)
 	e.rootRoute.Use(SessionMgr.Handler())
 }
 
@@ -287,7 +289,7 @@ func (e *KubePiServer) setUpTtyEntrypoint() {
 
 func (e *KubePiServer) bootstrap() *KubePiServer {
 	e.setUpRootRoute()
-	e.setUpStaticFile()
+	//e.setUpStaticFile()
 	e.setUpLogger()
 	e.setUpDB()
 	e.setUpSession()

@@ -44,7 +44,7 @@ export default {
   .content-container {
     transition: 0.3s;
     color: white;
-    background-color: #222629;
+    background-color: white;
     overflow: auto;
     height: 100%;
     padding: 20px;

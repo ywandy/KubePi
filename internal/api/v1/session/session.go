@@ -2,6 +2,7 @@ package session
 
 import (
 	goContext "context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -63,12 +64,15 @@ func (h *Handler) IsLogin() iris.Handler {
 			ctx.Values().Set("data", false)
 			return
 		}
-		p, ok := loginUser.(UserProfile)
-		if !ok {
-			ctx.StatusCode(iris.StatusInternalServerError)
-			ctx.Values().Set("message", "can not parse to session user")
-			return
-		}
+		p:=UserProfile{}
+		a,_:=json.Marshal(loginUser)
+		json.Unmarshal(a,&p)
+		//p, ok := loginUser.(UserProfile)
+		//if !ok {
+		//	ctx.StatusCode(iris.StatusInternalServerError)
+		//	ctx.Values().Set("message", "can not parse to session user")
+		//	return
+		//}
 		if p.Mfa.Enable {
 			if !p.Mfa.Approved {
 				ctx.StatusCode(iris.StatusUnauthorized)
@@ -268,12 +272,15 @@ func (h *Handler) GetProfile() iris.Handler {
 			ctx.Values().Set("message", "no login user")
 			return
 		}
-		p, ok := loginUser.(UserProfile)
-		if !ok {
-			ctx.StatusCode(iris.StatusInternalServerError)
-			ctx.Values().Set("message", "can not parse to session user")
-			return
-		}
+		//p, ok := loginUser.(UserProfile)
+		//if !ok {
+		//	ctx.StatusCode(iris.StatusInternalServerError)
+		//	ctx.Values().Set("message", "can not parse to session user")
+		//	return
+		//}
+		p:=UserProfile{}
+		a,_:=json.Marshal(loginUser)
+		json.Unmarshal(a,&p)
 
 		user, err := h.userService.GetByNameOrEmail(p.Name, common.DBOptions{})
 		if err != nil {

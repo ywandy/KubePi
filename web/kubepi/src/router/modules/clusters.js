@@ -62,6 +62,16 @@ const Clusters = {
                     },
                 },
                 {
+                    path: "groups",
+                    props: true,
+                    component: () => import("@/business/cluster-management/detail/groups"),
+                    hidden: true,
+                    name: "ClusterGroups",
+                    meta: {
+                        activeMenu: "/clusters",
+                    },
+                },
+                {
                     path: "roles",
                     props: true,
                     component: () => import("@/business/cluster-management/detail/roles"),

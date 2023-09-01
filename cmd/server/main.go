@@ -1,7 +1,7 @@
 package main
 
 import (
-	"embed"
+	_ "embed"
 	"runtime"
 
 	_ "github.com/KubeOperator/kubepi/cmd/server/docs"
@@ -28,14 +28,14 @@ var (
 	serverBindPort int
 )
 
-//go:embed web/kubepi
-var embedWebKubePi embed.FS
-
-//go:embed web/dashboard
-var embedWebDashboard embed.FS
-
-//go:embed web/terminal
-var embedWebTerminal embed.FS
+////go:embed web/kubepi
+//var embedWebKubePi embed.FS
+//
+////go:embed web/dashboard
+//var embedWebDashboard embed.FS
+//
+////go:embed web/terminal
+//var embedWebTerminal embed.FS
 
 //go:embed script/darwin/init-kube.sh
 var webkubectlEntrypointDarwin string
@@ -56,9 +56,9 @@ var RootCmd = &cobra.Command{
 	Use:   "kubepi-server",
 	Short: "A dashboard for kubernetes",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		server.EmbedWebDashboard = embedWebDashboard
-		server.EmbedWebTerminal = embedWebTerminal
-		server.EmbedWebKubePi = embedWebKubePi
+		//server.EmbedWebDashboard = embedWebDashboard
+		//server.EmbedWebTerminal = embedWebTerminal
+		//server.EmbedWebKubePi = embedWebKubePi
 		if runtime.GOOS == "darwin" {
 			server.WebkubectlEntrypoint = webkubectlEntrypointDarwin
 		} else {

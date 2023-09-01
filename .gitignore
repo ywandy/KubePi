@@ -1,6 +1,7 @@
 # OSX leaves these everywhere on SMB shares
 ._*
 
+*.db
 # OSX trash
 .DS_Store
 

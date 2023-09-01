@@ -12,8 +12,9 @@ module.exports = {
         open: true,
         overlay: {
             warnings: false,
-            errors: true
+            errors: false
         },
+        disableHostCheck: true,
         proxy: {
             '/dashboard': {
                 target: 'http://0.0.0.0:4400',

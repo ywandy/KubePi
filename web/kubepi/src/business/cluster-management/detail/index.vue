@@ -2,6 +2,7 @@
   <layout-content :header="$t('business.cluster.cluster_detail')+'-'+name" :back-to="{ name: 'Clusters' }">
     <el-menu class="menuClass" router :default-active="activeRoute()" mode="horizontal"  background-color="#222629">
       <el-menu-item :index="membersPath">{{ $t('business.cluster.member') }}</el-menu-item>
+      <el-menu-item :index="groupsPath">用户组</el-menu-item>
       <el-menu-item :index="rolesPath">{{ $t('business.cluster.role') }}</el-menu-item>
       <el-menu-item :index="reposPath">{{ $t('business.cluster.repo') }}</el-menu-item>
     </el-menu>
@@ -23,6 +24,7 @@ export default {
   data() {
     return {
       membersPath: `/clusters/detail/${this.name}/members`,
+      groupsPath: `/clusters/detail/${this.name}/groups`,
       rolesPath: `/clusters/detail/${this.name}/roles`,
       reposPath: `/clusters/detail/${this.name}/repos`,
     }
